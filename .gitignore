@@ -34,3 +34,6 @@ venv/
 .idea/
 .vscode/
 populate_repo.sh
+
+# Generated mesh - regenerate with blockMesh from the dicts in system/
+01_generate_data/**/polyMesh/
