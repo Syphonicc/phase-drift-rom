@@ -1,0 +1,57 @@
+cff-version: 1.2.0
+title: >-
+  Phase-drift diagnosis and correction for latent-space
+  reduced-order models of bluff-body wakes
+message: >-
+  If you use this software or the results it produces, please cite
+  the accompanying paper (see preferred-citation below).
+type: software
+authors:
+  - given-names: Suvam
+    family-names: Samanta
+    orcid: 'https://orcid.org/0009-0004-0729-7553'
+    affiliation: National Institute of Technology Agartala
+  - given-names: Sachidananda
+    family-names: Behera
+    affiliation: >-
+      Department of Mechanical and Aerospace Engineering,
+      Indian Institute of Technology Hyderabad
+repository-code: 'https://github.com/Syphonicc/phase-drift-rom'
+license: MIT
+keywords:
+  - reduced-order modelling
+  - phase reduction
+  - vortex shedding
+  - bluff-body wake
+  - convolutional autoencoder
+  - long short-term memory
+  - dynamic mode decomposition
+  - computational fluid dynamics
+
+preferred-citation:
+  type: article
+  title: >-
+    Autoregressive rollout error in latent-space reduced-order models
+    of bluff-body wakes accumulates as phase drift
+  authors:
+    - given-names: Suvam
+      family-names: Samanta
+      orcid: 'https://orcid.org/0009-0004-0729-7553'
+      affiliation: National Institute of Technology Agartala
+    - given-names: Sachidananda
+      family-names: Behera
+      affiliation: >-
+        Department of Mechanical and Aerospace Engineering,
+        Indian Institute of Technology Hyderabad
+  year: 2026
+  identifiers:
+    - type: other
+      value: 'arXiv:2608.07189'
+      description: >-
+        arXiv preprint. Note that v1 was posted under the earlier title
+        "... is accumulated phase drift"; the wording above is current.
+
+identifiers:
+  - type: url
+    value: 'https://arxiv.org/abs/2608.07189'
+    description: arXiv preprint of the accompanying paper

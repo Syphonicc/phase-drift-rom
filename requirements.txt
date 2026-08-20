@@ -1,0 +1,42 @@
+# Dependencies for the phase-drift analysis.
+#
+# The versions in the trailing comments are those the paper's results were
+# produced with. The lower bounds are floors below which something is known or
+# strongly expected to break, not arbitrary caution.
+#
+# Torch is needed for more than training. Anything that decodes latent
+# trajectories back to velocity fields loads the autoencoder, so field_validation
+# and compute_rho in step 03, and the field-space baselines in step 04, all import
+# it. The latent-space analysis (phase_correction, decompose_error,
+# tangential_transverse, slope_tstat, hankel_dmd), the figures in step 06 and the
+# audit in step 07 need only numpy, scipy and matplotlib.
+
+# ---- Core numerics ---------------------------------------------------------
+# NumPy 2.0 is a genuine floor, not caution. Every output file in this project is
+# a pickled dict read back as np.load(path, allow_pickle=True).item(), and the
+# pickle and scalar-repr behaviour changed at the 1.x/2.x boundary. Reading these
+# files under NumPy 1.x is untested and may fail or, worse, differ silently.
+numpy>=2.0          # tested with 2.3.2
+
+# scipy.signal.hilbert and scipy.stats.linregress are load-bearing throughout.
+# slope_tstat.py additionally uses linregress(...).stderr, which is not present
+# in older releases; without it that script fails rather than degrading.
+scipy>=1.10         # tested with 1.17.1
+
+# ---- Figures ---------------------------------------------------------------
+matplotlib>=3.7     # tested with 3.10.5
+
+# ---- Training only (steps 02 and 05) ---------------------------------------
+# CPU is sufficient for a single model. The ninety-network ensembles in
+# 05_ensembles/ are impractical without a GPU. Install the CUDA build matching
+# your machine rather than the default wheel if you intend to retrain.
+torch>=2.0          # tested with 2.10.0+cu126
+
+# ---- Notes -----------------------------------------------------------------
+# Tested on Python 3.13.13. Nothing here requires 3.13 specifically; 3.10 or
+# later should work, but only 3.13 has been exercised.
+#
+# OpenFOAM is not a Python dependency and is not installed by pip. The cases in
+# 01_generate_data/ were run with OpenFOAM v2512 (ESI). Regenerating the raw
+# simulations requires a working OpenFOAM installation; everything downstream of
+# the snapshot arrays does not.
