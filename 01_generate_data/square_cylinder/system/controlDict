@@ -1,0 +1,80 @@
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+//
+// SQUARE CYLINDER, Re = 100
+//   D = 0.12, U = 1.0, nu = 0.0012
+//   Expected St ~ 0.137  ->  f_shed = St*U/D = 0.137/0.12 = 1.1417 Hz
+//   Shedding period  T = 1/f = 0.876 s
+//   writeInterval = T/20 = 0.0438  -> ~20 snapshots per shedding cycle
+//
+//   Transient discarded: t < 60  (square cylinder at Re=100 takes longer than
+//   the circular case to reach a saturated limit cycle; be generous)
+//   Data window: t = 60 .. 120  -> 60/0.0438 ~ 1370 snapshots
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pimpleFoam;
+
+startFrom       startTime;
+startTime       0;
+stopAt          endTime;
+endTime         120;
+
+deltaT          0.005;
+
+writeControl    adjustableRunTime;
+writeInterval   0.0438;          // T_shed/20 = 0.876/20
+
+purgeWrite      0;
+writeFormat     ascii;
+writePrecision  6;
+writeCompression off;
+
+timeFormat      general;
+timePrecision   8;
+
+adjustTimeStep  yes;
+maxCo           0.8;
+
+runTimeModifiable false;
+
+functions
+{
+    // Force coefficients -> gives lift history for an INDEPENDENT St check
+    forceCoeffs1
+    {
+        type            forceCoeffs;
+        libs            ("libforces.so");
+        writeControl    timeStep;
+        writeInterval   1;
+        patches         ( squareCylinder );
+        rho             rhoInf;
+        rhoInf          1;
+        liftDir         (0 1 0);
+        dragDir         (1 0 0);
+        CofR            (0 0 0);
+        pitchAxis       (0 0 1);
+        magUInf         1.0;
+        lRef            0.12;      // D
+        Aref            0.0018;    // D * spanwise thickness (0.12 * 0.015)
+    }
+
+    fieldAverage1
+    {
+        type            fieldAverage;
+        libs            ("libfieldFunctionObjects.so");
+        writeControl    writeTime;
+        timeStart       60;
+        fields
+        (
+            U { mean on; prime2Mean off; base time; }
+            p { mean on; prime2Mean off; base time; }
+        );
+    }
+}
+// ************************************************************************* //

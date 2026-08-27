@@ -19,3 +19,21 @@ has not been re-verified without them.
 Meshes are not included in this repository. Regenerate with `blockMesh`.
 
 The Re=300 case and the square-cylinder case are not in this revision.
+
+## Other Reynolds numbers
+
+The circular-cylinder cases differ only in viscosity, since D = 0.12 and
+U = 1.0 throughout and Re = U*D/nu. To run a Reynolds number not included
+here, copy the Re400 case and change nu in constant/transportProperties.
+
+| Re | nu |
+|---|---|
+| 300 | 4.0e-4 |
+| 400 | 3.0e-4 |
+| 500 | 2.4e-4 |
+| 600 | 2.0e-4 |
+| 700 | 1.714e-4 |
+| 800 | 1.5e-4 |
+| 1000 | 1.2e-4 |
+
+The Re = 300 case directory is not included in this revision.

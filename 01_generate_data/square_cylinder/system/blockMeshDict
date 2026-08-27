@@ -1,0 +1,123 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      blockMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+//
+// BACKGROUND MESH for the 2D square-cylinder benchmark.
+// snappyHexMesh will carve the square body out of this box.
+//
+// Benchmark configuration (Sohankar/Norberg/Davidson-type 2D square cylinder):
+//    D  = 0.12  (square side)
+//    U  = 1.0
+//    Re = 100      -> nu = U*D/Re = 0.0012
+//    blockage = D / H = 5.6%   ->  H = D/0.056 = 2.1428  (half = 1.0714)
+//    upstream   = 10 D = 1.2
+//    downstream = 30 D = 3.6   (> 25D, preserves temporal periodicity)
+//    expected St ~ 0.137  (validation target)
+//
+// The square spans x,y in [-D/2, +D/2] = [-0.06, +0.06].
+// Background cells are made SQUARE (dx = dy) so snappy carves a sharp,
+// grid-aligned square with no stair-stepping.
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+scale   1;
+
+D       0.06;    // half the square side (square side = 0.12)
+
+xInlet  -1.2;    // 10 D upstream  (D_full = 0.12)
+xOutlet  3.6;    // 30 D downstream
+yMin    -1.0714; // blockage 5.6%  -> full height 2.1428
+yMax     1.0714;
+
+zMin    -0.0075;
+zMax     0.0075;
+
+// ---- Cell counts -----------------------------------------------------------
+// Domain: Lx = 4.8, Ly = 2.1428
+// Base cell size h = 0.01  ->  D_full/h = 12 base cells across the square.
+// With one level of snappy refinement near the body that becomes 24 cells
+// across the square, which is adequate for Re=100 laminar shedding.
+//
+//   nx = 4.8    / 0.01 = 480
+//   ny = 2.1428 / 0.01 = 214  (h_y = 0.010013, essentially square cells)
+//
+// NOTE: 480 x 214 = ~103k background cells. Snappy refinement will add more.
+// If this is too heavy, coarsen to h = 0.015 (nx=320, ny=143).
+// ----------------------------------------------------------------------------
+
+nx      480;
+ny      214;
+nz      1;
+
+vertices
+(
+    ($xInlet  $yMin $zMin)   //  0
+    ($xOutlet $yMin $zMin)   //  1
+    ($xOutlet $yMax $zMin)   //  2
+    ($xInlet  $yMax $zMin)   //  3
+    ($xInlet  $yMin $zMax)   //  4
+    ($xOutlet $yMin $zMax)   //  5
+    ($xOutlet $yMax $zMax)   //  6
+    ($xInlet  $yMax $zMax)   //  7
+);
+
+blocks
+(
+    hex (0 1 2 3 4 5 6 7) ($nx $ny $nz) simpleGrading (1 1 1)
+);
+
+edges
+(
+);
+
+boundary
+(
+    inlet
+    {
+        type patch;
+        faces ( (0 4 7 3) );
+    }
+
+    outlet
+    {
+        type patch;
+        faces ( (1 2 6 5) );
+    }
+
+    topAndBottom
+    {
+        type symmetry;
+        faces
+        (
+            (0 1 5 4)   // bottom
+            (3 7 6 2)   // top
+        );
+    }
+
+    frontAndBack
+    {
+        type empty;
+        faces
+        (
+            (0 3 2 1)   // zMin plane
+            (4 5 6 7)   // zMax plane
+        );
+    }
+);
+
+mergePatchPairs
+(
+);
+
+// ************************************************************************* //

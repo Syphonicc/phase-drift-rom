@@ -1,0 +1,134 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+//
+// Carve the SQUARE CYLINDER out of the background box.
+//
+// A searchableBox spanning [-0.06, +0.06] in x and y IS the square cylinder.
+// Because the box faces are aligned with the Cartesian background cells,
+// snappy produces a perfectly sharp square with no stair-stepping — this is
+// the ideal geometry for snappy (unlike a circle, which needs snapping).
+//
+// castellatedMesh true : cut cells out where the box is
+// snap            false: no surface snapping needed — the box is grid-aligned
+// addLayers       false: laminar Re=100, no boundary-layer layers needed
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+castellatedMesh true;
+snap            false;
+addLayers       false;
+
+geometry
+{
+    squareCylinder
+    {
+        type    searchableBox;
+        min     (-0.06 -0.06 -0.01);   // z extends past the 2D slab
+        max     ( 0.06  0.06  0.01);   // so the cut is clean through
+    }
+
+    // Refinement region around the body and into the near wake
+    refineBox
+    {
+        type    searchableBox;
+        min     (-0.30 -0.30 -0.01);
+        max     ( 1.20  0.30  0.01);
+    }
+}
+
+
+castellatedMeshControls
+{
+    maxLocalCells       200000;
+    maxGlobalCells      4000000;
+    minRefinementCells  10;
+    maxLoadUnbalance    0.10;
+    nCellsBetweenLevels 2;
+    resolveFeatureAngle 30;
+    allowFreeStandingZoneFaces true;
+
+    features ();
+
+    refinementSurfaces
+    {
+        squareCylinder
+        {
+            // level (min max): one level of refinement on the body surface
+            level (1 1);
+            patchInfo
+            {
+                type    wall;
+            }
+        }
+    }
+
+    refinementRegions
+    {
+        refineBox
+        {
+            mode    inside;
+            levels  ((1e15 1));   // one level of refinement inside the box
+        }
+    }
+
+    // A point in the FLUID (outside the square body, inside the domain).
+    // Chosen well upstream and off-axis so it is unambiguously in the fluid.
+    locationInMesh (-0.8 0.5 0);
+}
+
+
+snapControls
+{
+    nSmoothPatch    3;
+    tolerance       2.0;
+    nSolveIter      30;
+    nRelaxIter      5;
+}
+
+
+addLayersControls
+{
+    relativeSizes       true;
+    layers              {}
+    expansionRatio      1.0;
+    finalLayerThickness 0.3;
+    minThickness        0.1;
+    nGrow               0;
+    featureAngle        60;
+    nRelaxIter          3;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals      3;
+    nSmoothThickness    10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedianAxisAngle  90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter          50;
+}
+
+
+meshQualityControls
+{
+    #includeEtc "caseDicts/meshQualityDict"
+}
+
+writeFlags
+(
+);
+
+debug 0;
+mergeTolerance 1e-6;
+
+// ************************************************************************* //
