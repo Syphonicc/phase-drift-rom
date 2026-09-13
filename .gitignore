@@ -37,3 +37,7 @@ populate_repo.sh
 
 # Generated mesh - regenerate with blockMesh from the dicts in system/
 01_generate_data/**/polyMesh/
+
+# Result files that are cited in the paper, tracked as evidence
+!03_phase_correction/tangential_transverse.json
+!03_phase_correction/stencil_convergence.json
