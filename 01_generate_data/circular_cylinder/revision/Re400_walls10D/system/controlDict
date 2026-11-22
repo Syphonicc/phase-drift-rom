@@ -1,0 +1,74 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+ | =========                 |                                                 |*
+ | \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+ |  \\    /   O peration     | Version:  v2512                                 |
+ |   \\  /    A nd           | Website:  www.openfoam.com                      |
+ |    \\/     M anipulation  |                                                 |
+ \*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     pimpleFoam;
+
+startFrom       latestTime;
+startTime       0;
+stopAt          endTime;
+endTime         90;          // 50 transient + 40 data = 1333 snapshots at 0.03
+
+deltaT          0.01;        // smaller than writeInterval so we hit 0.03 cleanly
+
+writeControl    adjustableRunTime;
+writeInterval   1000;   // revision: fields written only by writeObjects1 (U, p, t>=50) to save disk        // T_shed/20 = 0.60/20 = 0.030  (20 per shedding cycle)
+
+purgeWrite      0;
+writeFormat     ascii;
+writeCompression on;
+writePrecision  6;
+
+adjustTimeStep  yes;
+maxCo           0.8;
+
+timeFormat      general;
+timePrecision   8;
+
+runTimeModifiable false;
+
+functions
+{
+    writeObjects1
+    {
+        type            writeObjects;
+        libs            ("libutilityFunctionObjects.so");
+        objects         (U p);
+        writeOption     anyWrite;
+        writeControl    adjustableRunTime;
+        writeInterval   0.03;
+        timeStart       49.99;
+    }
+    forceCoeffs1
+    {
+        type            forceCoeffs;
+        libs            ("libforces.so");
+        patches         (cylinder);
+        writeControl    timeStep;
+        writeInterval   1;
+
+        rho             rhoInf;
+        rhoInf          1;
+        magUInf         1.0;
+        lRef            0.12;      // D
+        Aref            0.0018;    // D * span = 0.12 * 0.015
+
+        liftDir         (0 1 0);
+        dragDir         (1 0 0);
+        CofR            (0 0 0);
+        pitchAxis       (0 0 1);
+    }
+}
+// ************************************************************************* //
