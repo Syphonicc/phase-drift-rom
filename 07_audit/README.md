@@ -5,10 +5,12 @@ Provenance tracking and manuscript cross-checking.
 | script | does |
 |---|---|
 | `audit_numbers.py` | walks every output file and writes a CSV of each reported quantity with its provenance — case, latent dimension, calibration length, timestep, trim setting, source file — flagging quantities whose sources disagree |
+| `audit_numbers_v3.py` | `audit_numbers.py` plus the revision outputs as sources and a claims check of every number quoted in the revised text against its data source (reads `sensitivity_table_v2.json`) |
 | `check_manuscript.py` | cross-checks every number printed in the LaTeX source against that CSV, in both directions: coverage, and unmatched claims |
 
 ```bash
 python3 audit_numbers.py --data-dir .
+python3 audit_numbers_v3.py --data-dir . --quiet     # revised manuscript
 python3 check_manuscript.py --csv audit_numbers.csv --tex <bundle-dir>
 ```
 
