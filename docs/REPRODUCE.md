@@ -22,22 +22,30 @@ a single working directory.
 ```
 
 Steps 4 and 5 are independent of each other. Step 5 is by far the most expensive:
-it trains 90 networks.
+it trains 90 networks. Step 8 (revision analyses) uses a further 225 networks
+(165 from `02_train_rom/seed_sweep_v4.py`, 20 for the Re = 400 mesh comparison and 40
+at Re = 500 from `05_ensembles/seed_sweep_v3.py`) and the additional simulations; see
+`08_revision/README.md`.
 
 ---
 
 ## Figures
 
-| figure | script | notes |
+| figure (revised paper) | script | notes |
 |---|---|---|
 | 1 — flow configurations | `06_figures/make_fig01.py` | reads `snapshots_*` and `metadata_*` directly |
-| 2 — pipeline schematic | `fig02_pipeline.tex` | TikZ, no script |
-| 3, 4 — error spectra | `06_figures/make_paper_figures.py` | unwindowed periodogram; y-limits are clipped deliberately, see below |
-| 5 — amplitude/phase decomposition | `06_figures/make_paper_figures.py` | panel (b) is the **rollout-wide** φ fit |
-| 6 — tangential/transverse | `03_phase_correction/tangential_transverse.py --out-prefix fig06_tangential_transverse` | writes its own figure |
-| 7 — latent correction | `06_figures/make_paper_figures.py` | reads `phasecorr_*_ncal150.npy` |
-| 8 — field correction | `06_figures/make_paper_figures.py` | |
-| 9 — linear-propagator baselines | `06_figures/plot_dmd_baseline.py` | field panel reads `fieldval_*.npy`, **not** the DMD JSON |
+| 2 — force coefficients vs Re | `08_revision/make_fig_forces.py` | reads `postProcessing/forceCoeffs*` of the solved cases via `08_revision/forces.py` |
+| 3 — pipeline schematic | `fig02_pipeline.tex` | TikZ, no script |
+| 4, 5 — error spectra | `06_figures/make_paper_figures.py` | unwindowed periodogram; y-limits are clipped deliberately, see below |
+| 6 — amplitude/phase decomposition | `06_figures/make_paper_figures.py` | panel (b) is the **rollout-wide** φ fit |
+| 7 — tangential/transverse | `03_phase_correction/tangential_transverse.py` | tangent stencil k = 1 (the default) |
+| 8 — signed error and phase | `08_revision/make_fig_signed_phase_v2.py` | |
+| 9 — 395-cycle rollout | `08_revision/long_rollout_analysis_v2.py` | ensemble `S8_longroll`, reference `snapshots_Re400ext.npy` |
+| 10 — latent correction | `06_figures/make_paper_figures.py` | reads `phasecorr_*_ncal150.npy` |
+| 11 — field-space timing error | `08_revision/field_timing_check_v2.py` | |
+| 12 — field correction | `06_figures/make_paper_figures.py` | |
+| 13 — linear-propagator baselines | `06_figures/plot_dmd_baseline.py` | field panel reads `fieldval_*.npy`, **not** the DMD JSON |
+| 14 — learned map (free-running clock, perturbations) | `08_revision/make_fig_learned_map_v5.py` | reads `clock_perturb_v2_Re500_40seeds.json` from `08_revision/clock_freerun_perturb_v2.py` |
 
 The spectrum figures set an explicit `ylim` of `(1e-6, 2e0)`. The `+1e-20` guard
 that keeps the DC null finite on a log axis would otherwise drag the axis down
@@ -59,23 +67,31 @@ manual references to "Figure N" may not.
 
 ## Tables
 
-| table | script | source file |
+| table (revised paper) | script | source file |
 |---|---|---|
-| Grid convergence | — | reported from solver output |
-| Amplitude/phase decomposition | `03_phase_correction/decompose_error.py` | `decompose_Re*_L*.npy` |
-| Estimator bias | `03_phase_correction/spectral_robustness.py` | synthetic signals |
-| Tangential/transverse | `03_phase_correction/tangential_transverse.py` | `tangential_transverse.json` |
-| Correction efficacy | `03_phase_correction/phase_correction.py` | `phasecorr_*_ncal150.npy` |
-| Horizon | `03_phase_correction/phase_correction.py` | **printed only, not saved** — see `DATA.md` trap 7 |
-| Field-space G and ρ | `03_phase_correction/field_validation.py`, `compute_rho.py` | `fieldval_*.npy` |
-| Calibration-length sweep | `03_phase_correction/phase_correction.py --ncal ...` | one file per length |
-| Held-out threshold | `05_ensembles/heldout_threshold.py` | `seed_corr_*/`, `seed_field_*/` |
-| DMD and harmonic baselines | `04_baselines/dmd_baseline.py` | `dmd_baseline_*_fixed.json` |
-| Hankel-DMD | `04_baselines/hankel_dmd.py` | `hankel_dmd.json`, `hankel_modulated_longq.json` |
-| Periodic tiling | `04_baselines/periodic_baseline.py` | |
-| Modulated case | `03_phase_correction/phase_correction.py --re 998` | |
-| Seed study | `05_ensembles/seed_correction_sweep.py` | `seed_corr_*/` |
-| Drift predictors | `05_ensembles/drift_predictor_sweep.py` | |
+| I — limit-cycle saturation | `08_revision/saturation_check_v3.py` | `saturation_check_v3.json` |
+| II — grid and timestep convergence | solver output; Re = 800/1000 rows from `08_revision/make_fig_forces.py` | `forces_vs_re.json` |
+| III — summary of cases | — | |
+| IV — amplitude/phase decomposition | `03_phase_correction/decompose_error.py` | `decompose_Re*_L*.npy` |
+| V — tangential/transverse | `03_phase_correction/tangential_transverse.py` | `tangential_transverse.json` |
+| VI — correction efficacy | `03_phase_correction/phase_correction.py` | `phasecorr_*_ncal150.npy` |
+| VII — horizon | `03_phase_correction/phase_correction.py` | **printed only, not saved** — see `DATA.md` trap 7 |
+| VIII — field-space G and ρ | `03_phase_correction/field_validation.py`, `compute_rho.py` | `fieldval_*.npy` |
+| IX — efficacy by R²_cal band | `05_ensembles/seed_correction_sweep.py` | `seed_corr_*/` |
+| X — calibration-length sweep | `03_phase_correction/phase_correction.py --ncal ...` | one file per length |
+| XI — threshold response | `05_ensembles/heldout_threshold.py` | `seed_corr_*/`, `seed_field_*/` |
+| XII — periodic continuation | `04_baselines/periodic_baseline.py`; cubic-spline columns from `08_revision/periodic_tiling_interp_v2.py` | `periodic_tiling_interp_v2.json` |
+| XIII — DMD and harmonic baselines | `04_baselines/dmd_baseline.py` | `dmd_baseline_*_fixed.json` |
+| XIV — Hankel-DMD | `04_baselines/hankel_dmd.py` | `hankel_dmd.json`, `hankel_modulated_longq.json` |
+| XV — modulated case | `03_phase_correction/phase_correction.py --re 998`; tiling from `08_revision/periodic_tiling_interp_v3.py 998:4 999:4` | |
+| XVI — drift predictors | `05_ensembles/drift_predictor_sweep.py` | |
+| XVII — sensitivity | `08_revision/sensitivity_table_v2.py` | `sensitivity_table_v2.json`; ensembles listed in `08_revision/README.md` |
+| S1 (supplementary) — estimator bias | `03_phase_correction/spectral_robustness.py` | synthetic signals |
+
+The held-out evidence in the revised paper is the fixed threshold applied once to all
+90 ensemble networks (none of which was used to choose it); the stratified-split and
+leave-one-configuration-out outputs of `heldout_threshold.py` are not used as
+evidence of generalisation.
 
 The Hankel table reports the best result over a rank sweep at each delay count.
 The stationary rows sweep ranks 8–64; the modulated rows sweep 8–128 at **every**
@@ -91,6 +107,7 @@ preparation.
 ```bash
 python3 07_audit/audit_numbers.py --data-dir .
 python3 07_audit/check_manuscript.py --csv audit_numbers.csv --tex <bundle-dir>
+python3 07_audit/audit_numbers_v3.py --data-dir . --quiet   # revised manuscript: adds the revision outputs and a claims check
 ```
 
 `audit_numbers.py` writes a CSV row for every reported quantity, tagged with case,

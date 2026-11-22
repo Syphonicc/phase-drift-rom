@@ -2,9 +2,9 @@
 
 Code and OpenFOAM cases for the paper:
 
-> **Autoregressive rollout error in latent-space reduced-order models of
-> bluff-body wakes accumulates as phase drift**
-> *(under review, Physics of Fluids)*
+> **Phase drift dominates long-horizon error in autoencoder–LSTM models of
+> periodic cylinder wakes**
+> *(under review, Physics of Fluids; revised version)*
 
 Autoregressive convolutional-autoencoder / LSTM reduced-order models of
 bluff-body wakes accumulate rollout error that is almost entirely a **coherent
@@ -15,13 +15,24 @@ one-parameter-per-latent-coordinate phase realignment, fitted on a short
 calibration window, with a built-in diagnostic (the R² of the phase fit) that
 reports in advance whether the correction applies.
 
+The revised paper traces the drift to the shedding clock: the trained network
+reproduces the Strouhal number to better than 0.01%, this small error is fixed when
+training ends and is predicted by the frequency of the free-running network
+(correlation 0.99 over forty networks), and the learned dynamics restore amplitude
+perturbations within one shedding period while leaving the phase neutral. In
+physical space the error is a displacement of the shed vortices along the street.
+The structure is unchanged by solver mesh, domain length, blockage, POD in place of
+the autoencoder, input window, an unrolled training loss, and a model of the lift
+coefficient alone.
+
 This repository reproduces every figure and table in the paper.
 
 **What this repository does not claim.** The correction is *post hoc* and
 non-causal: it uses the analytic signal of the complete predicted trajectory, so
 it cannot be run online. And on every flow tested here a delay-embedded linear
 (Hankel-DMD) operator with an adequate memory is more accurate than the corrected
-network, and shows no drift. The contribution is the diagnosis — that the
+network and shows no drift; on the stationary wakes, so is periodic continuation
+with a cubic-spline interpolant. The contribution is the diagnosis — that the
 long-horizon failure of a learned autoregressive surrogate on an oscillatory flow
 is a *timing* failure, measurable and reportable — not a claim that correcting it
 beats fitting the flow directly. The baselines that outperform the pipeline are
@@ -42,9 +53,10 @@ The folders are numbered in the order you would run them.
 | 5 | [`05_ensembles/`](05_ensembles) | multi-seed studies (efficacy spread, field-space G and ρ, drift-predictor null, held-out threshold validation) |
 | 6 | [`06_figures/`](06_figures) | figure generation and bundle synchronisation |
 | 7 | [`07_audit/`](07_audit) | provenance audit and manuscript cross-check |
+| 8 | [`08_revision/`](08_revision) | revision analyses: sensitivity ensembles, free-running clock and perturbation tests, 395-cycle rollout, field-space timing, forces, saturation and near-wall checks |
 
 **Core path** (to see the finding): 1 → 2 → 3 → 6.
-**Full reproduction** (with error bars and baselines): 1 → 6.
+**Full reproduction** (with error bars and baselines): 1 → 6, then 8.
 
 See [`docs/REPRODUCE.md`](docs/REPRODUCE.md) for the table/figure → script map and
 [`docs/DATA.md`](docs/DATA.md) for the data-file layout.
@@ -96,7 +108,8 @@ read that file first.
 
 The OpenFOAM cases in `01_generate_data/` regenerate the raw simulations from
 scratch, including mesh generation (`blockMesh` for the circular cylinder,
-`blockMesh` plus `snappyHexMesh` for the square). The processed snapshot arrays
+`blockMesh` plus `snappyHexMesh` for the square), and the additional simulations of
+the revision are in `01_generate_data/circular_cylinder/revision/`. The processed snapshot arrays
 used for training are approximately 5 GB; they are not held in this repository but
 can be regenerated from the case files, and are available from the corresponding
 author on reasonable request.

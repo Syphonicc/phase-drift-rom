@@ -31,8 +31,8 @@ keywords:
 preferred-citation:
   type: article
   title: >-
-    Autoregressive rollout error in latent-space reduced-order models
-    of bluff-body wakes accumulates as phase drift
+    Phase drift dominates long-horizon error in autoencoder-LSTM models
+    of periodic cylinder wakes
   authors:
     - given-names: Suvam
       family-names: Samanta
@@ -49,7 +49,8 @@ preferred-citation:
       value: 'arXiv:2608.07189'
       description: >-
         arXiv preprint. Note that v1 was posted under the earlier title
-        "... is accumulated phase drift"; the wording above is current.
+        "... is accumulated phase drift"; the title above is that of the
+        revised manuscript.
 
 identifiers:
   - type: url
