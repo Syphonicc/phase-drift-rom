@@ -2,6 +2,7 @@
 
 | script | does |
 |---|---|
+| `seed_sweep_v4.py` | trains and rolls out ensembles of the same model with switches for the revision variants (`--cae-mode all/causal/fixed:<prefix>/pod`, `--lstm-seed`, `--tau`, `--loss multistep --k-steps K`, `--scalar`, `--snap`, `--split-n`) and writes per-network diagnostics; exact commands in [`../08_revision/README.md`](../08_revision/README.md) |
 | `run_pipeline.py` | trains the convolutional autoencoder and the LSTM, runs the autoregressive rollout, writes `latents_*`, `rollout_*`, `pipeline_summary_*` and the model checkpoints |
 
 ```bash

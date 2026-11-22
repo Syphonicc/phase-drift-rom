@@ -7,6 +7,7 @@ Multi-seed studies. This is the expensive part: ninety networks in total.
 | `seed_correction_sweep.py` | retrains across seeds, records latent-space efficacy per seed |
 | `seed_correction_field.py` | the same in field space, recording G and rho |
 | `seed_sweep_v2.py` | the broader parameter sweep |
+| `seed_sweep_v3.py` | forty-network Re = 500 ensemble with stored networks (used for the free-running clock and perturbation tests) and the Re = 400 mesh ensembles |
 | `seed_noise_sweep.py` | noise injection across seeds |
 | `heldout_threshold.py` | out-of-sample validation of the R2 threshold: stratified split, leave-one-configuration-out, and a threshold sweep |
 | `pooled_cae_sweep.py` | shared-autoencoder variant |
