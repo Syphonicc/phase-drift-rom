@@ -4,8 +4,19 @@ Which script produces which table and figure. Read
 [`DATA.md`](DATA.md) first — several output files are easy to misread, and the
 traps documented there caused real errors during preparation.
 
-Every script takes `--data-dir`; the examples below assume outputs are written to
-a single working directory.
+**Data directory.** Not every script takes `--data-dir`. The scripts of steps 01–06 were
+written for a fixed working directory, `~/cylinder_lstm_data`, and the following read
+*and write* there regardless of any option (some even when called with `--help`):
+`01_generate_data/{extract_snapshots_v2,extract_square,interpolation_study_v3}.py`,
+`02_train_rom/run_pipeline.py`,
+`03_phase_correction/{phase_correction,decompose_error,field_validation,compute_rho,verify_mechanism,timewarp_correction,slope_tstat,collect_phase_results}.py`,
+`04_baselines/phasecorr_on_dmd.py`, `05_ensembles/drift_predictor_sweep.py`, and
+`06_figures/{make_fig01,make_paper_figures,sync_figures}.py`. Change the `DATA`/`HOME`
+constant at the top of these scripts, or run them in a copy, before using them on data you
+want to keep. The other scripts of steps 01–06 take `--data-dir` (default
+`~/cylinder_lstm_data`); the scripts of `08_revision/` use the environment variables of
+[`08_revision/paths.py`](../08_revision/paths.py), and the revised figure scripts
+(`*_v2.py`, `field_timing_check_v3.py`) write only to the directory given by `--out`.
 
 ---
 
@@ -33,19 +44,19 @@ at Re = 500 from `05_ensembles/seed_sweep_v3.py`) and the additional simulations
 
 | figure (revised paper) | script | notes |
 |---|---|---|
-| 1 — flow configurations | `06_figures/make_fig01.py` | reads `snapshots_*` and `metadata_*` directly |
-| 2 — force coefficients vs Re | `08_revision/make_fig_forces.py` | reads `postProcessing/forceCoeffs*` of the solved cases via `08_revision/forces.py` |
-| 3 — pipeline schematic | `fig02_pipeline.tex` | TikZ, no script |
+| 1 — flow configurations | `06_figures/make_fig01_v2.py --out DIR` | reads `snapshots_*` and `metadata_*` directly; `make_fig01.py` (and `make_paper_figures.py`) wrote the earlier version of `fig01_configurations.pdf` |
+| 2 — force coefficients vs Re | `08_revision/make_fig_forces_v2.py` | reads `postProcessing/forceCoeffs*` of the solved cases via `08_revision/forces.py` |
+| 3 — pipeline schematic | `06_figures/fig02_pipeline.tex` | TikZ, no script |
 | 4, 5 — error spectra | `06_figures/make_paper_figures.py` | unwindowed periodogram; y-limits are clipped deliberately, see below |
-| 6 — amplitude/phase decomposition | `06_figures/make_paper_figures.py` | panel (b) is the **rollout-wide** φ fit |
-| 7 — tangential/transverse | `03_phase_correction/tangential_transverse.py` | tangent stencil k = 1 (the default) |
+| 6 — amplitude/phase decomposition | `06_figures/make_paper_figures_v2.py --out DIR` | panel (b) is the **rollout-wide** φ fit |
+| 7 — tangential/transverse | `03_phase_correction/tangential_transverse_v2.py --smooth 1` | tangent stencil k = 1 |
 | 8 — signed error and phase | `08_revision/make_fig_signed_phase_v2.py` | |
-| 9 — 395-cycle rollout | `08_revision/long_rollout_analysis_v2.py` | ensemble `S8_longroll`, reference `snapshots_Re400ext.npy` |
-| 10 — latent correction | `06_figures/make_paper_figures.py` | reads `phasecorr_*_ncal150.npy` |
-| 11 — field-space timing error | `08_revision/field_timing_check_v2.py` | |
-| 12 — field correction | `06_figures/make_paper_figures.py` | |
-| 13 — linear-propagator baselines | `06_figures/plot_dmd_baseline.py` | field panel reads `fieldval_*.npy`, **not** the DMD JSON |
-| 14 — learned map (free-running clock, perturbations) | `08_revision/make_fig_learned_map_v5.py` | reads `clock_perturb_v2_Re500_40seeds.json` from `08_revision/clock_freerun_perturb_v2.py` |
+| 9 — 395-cycle rollout | `08_revision/long_rollout_analysis_v3.py` | ensemble `S8_longroll`, reference `snapshots_Re400ext.npy` |
+| 10 — latent correction | `06_figures/make_paper_figures_v2.py --out DIR` | reads `phasecorr_*_ncal150.npy` |
+| 11 — field-space timing error | `08_revision/field_timing_check_v3.py --out DIR` | needs torch |
+| 12 — field correction | `06_figures/make_paper_figures_v2.py --out DIR` | |
+| 13 — linear-propagator baselines | `06_figures/plot_dmd_baseline_v2.py --out DIR` | field panel reads `fieldval_*.npy`, **not** the DMD JSON |
+| 14 — learned map (free-running clock, perturbations) | `08_revision/make_fig_learned_map_v6.py` | reads `$PDROM_ENSEMBLE_DIR/clock_perturb_v2_Re500_40seeds.json` written by `08_revision/clock_freerun_perturb_v2.py` (see `08_revision/README.md`) |
 
 The spectrum figures set an explicit `ylim` of `(1e-6, 2e0)`. The `+1e-20` guard
 that keeps the DC null finite on a log axis would otherwise drag the axis down
@@ -78,7 +89,7 @@ manual references to "Figure N" may not.
 | VII — horizon | `03_phase_correction/phase_correction.py` | **printed only, not saved** — see `DATA.md` trap 7 |
 | VIII — field-space G and ρ | `03_phase_correction/field_validation.py`, `compute_rho.py` | `fieldval_*.npy` |
 | IX — efficacy by R²_cal band | `05_ensembles/seed_correction_sweep.py` | `seed_corr_*/` |
-| X — calibration-length sweep | `03_phase_correction/phase_correction.py --ncal ...` | one file per length |
+| X — calibration-length sweep | `03_phase_correction/phase_correction.py --calib ...` | one file per length |
 | XI — threshold response | `05_ensembles/heldout_threshold.py` | `seed_corr_*/`, `seed_field_*/` |
 | XII — periodic continuation | `04_baselines/periodic_baseline.py`; cubic-spline columns from `08_revision/periodic_tiling_interp_v2.py` | `periodic_tiling_interp_v2.json` |
 | XIII — DMD and harmonic baselines | `04_baselines/dmd_baseline.py` | `dmd_baseline_*_fixed.json` |
@@ -108,6 +119,7 @@ preparation.
 python3 07_audit/audit_numbers.py --data-dir .
 python3 07_audit/check_manuscript.py --csv audit_numbers.csv --tex <bundle-dir>
 python3 07_audit/audit_numbers_v3.py --data-dir . --quiet   # revised manuscript: adds the revision outputs and a claims check
+python3 07_audit/audit_numbers_v4.py --data-dir . --quiet   # v3 plus the claims added on 2026-11-24 (77 in total)
 ```
 
 `audit_numbers.py` writes a CSV row for every reported quantity, tagged with case,

@@ -43,10 +43,10 @@ synthetic data in seconds before you commit GPU hours.
 
 Usage
 -----
-    python3 seed_sweep_v2.py --re 500 --n-seeds 40
-    python3 seed_sweep_v2.py --re 500 --seeds 0 1 2 3 4      # explicit list
-    python3 seed_sweep_v2.py --re 500 --n-seeds 40 --analyze-only   # just stats
-    python3 seed_sweep_v2.py --dry-run                       # synthetic smoke test
+    python3 seed_sweep_v3.py --re 500 --n-seeds 40
+    python3 seed_sweep_v3.py --re 500 --seeds 0 1 2 3 4      # explicit list
+    python3 seed_sweep_v3.py --re 500 --n-seeds 40 --analyze-only   # just stats
+    python3 seed_sweep_v3.py --dry-run                       # synthetic smoke test
 
 Re-running the same command after a crash resumes where it stopped.
 """

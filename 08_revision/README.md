@@ -34,16 +34,16 @@ directly, using `cellProcAddressing`; this reproduces `reconstructPar` followed 
 serial extraction exactly.
 
 ```bash
-python 01_generate_data/extract_snapshots_v5.py --decomposed --case $PDROM_CASES_DIR/Re100_main  --out-tag Re100c     --tstart 210.01
-python 01_generate_data/extract_snapshots_v5.py --decomposed --case $PDROM_CASES_DIR/Re400_cont  --out-tag Re400cont --tstart 90.01
-# likewise: Re400_long25D -> Re400L25D, Re400_wide10D -> Re400W10D,
-#           Re800_fine -> Re800fine, Re1000_fine -> Re1000fine   (default window t = 50.01-90)
+python 01_generate_data/extract_snapshots_v5.py --decomposed --case $PDROM_CASES_DIR/Re100           --out-tag Re100c     --tstart 210.01
+python 01_generate_data/extract_snapshots_v5.py --decomposed --case $PDROM_CASES_DIR/Re400_continued --out-tag Re400cont --tstart 90.01
+# likewise: Re400_outlet25D -> Re400L25D, Re400_walls10D -> Re400W10D,
+#           Re800_finemesh -> Re800fine, Re1000_finemesh -> Re1000fine   (default window t = 50.01-90)
 ```
 
 `snapshots_Re400ext.npy` is the production `snapshots_Re400.npy` (t = 50.01–90)
 followed by `snapshots_Re400cont.npy` (t = 90.03–290), 8000 snapshots, continuous at
 the join. The lift-coefficient series for `S9_lift` is
-`python 08_revision/forces.py $PDROM_CASES_DIR/Re400_cont 90.03 290 --resample 0.03 cl_Re400_t90_290.npy`
+`python 08_revision/forces.py $PDROM_CASES_DIR/Re400_continued 90.03 290 --resample 0.03 cl_Re400_t90_290.npy`
 (the lift coefficient of the continued Re = 400 run sampled every 0.03), of which the
 first 1334 samples (`cl_Re400_1334.npy`) are used.
 
@@ -59,7 +59,7 @@ and are at Re = 400 with n_z = 4 unless stated:
 | `S7b_base_v4` | 10 | baseline (production data) for S6, S7, S9, S11 |
 | `S6_causalCAE` | 10 | autoencoder fitted on the first 60 % of snapshots only |
 | `S7_long25D` | 10 | outlet at 25D |
-| `S11_wide10D` | 10 | lateral walls at ±10D (5 % blockage) |
+| `S11_wide10D` | 10 | lateral boundaries at ±10D (5 % blockage; inlet and outlet also moved, see `01_generate_data/circular_cylinder/revision/README.md`) |
 | `S9_lift` | 10 | scalar LSTM on the lift coefficient alone |
 | `S1_fixedCAE` | 10 | autoencoder fixed, LSTM initialisation varied; reference for τ, loss and POD blocks |
 | `S2_fixedLSTMseed` | 10 | LSTM initialisation fixed, autoencoder varied |
@@ -80,7 +80,9 @@ and are at Re = 400 with n_z = 4 unless stated:
 
 The two mesh ensembles of the sensitivity table at Re = 400 (`gridconv_Re400_coarse`,
 `gridconv_Re400_fine`, in `$PDROM_REVISION_DIR`) and the forty networks at Re = 500
-used for the free-running clock (`seed_sweep_v3_Re500`) were trained with
+used for the free-running clock (`seed_sweep_v3_Re500`, the second Re = 500 ensemble of
+Sec. III L; the first, `seed_sweep_Re500`, was trained with `05_ensembles/seed_sweep_v2.py`
+and stores scalars only) were trained with
 [`05_ensembles/seed_sweep_v3.py`](../05_ensembles/seed_sweep_v3.py):
 
 ```bash
@@ -150,15 +152,22 @@ network.
 |---|---|---|
 | Table I (saturation) | `saturation_check_v3.py` | `saturation_check_v3.json` |
 | near-wall resolution (Sec. II B 1) | `nearwall_resolution_v2.py` | `nearwall_resolution_v2.json` |
-| Fig. 2, Table II rows at Re = 800/1000 | `forces.py`, `make_fig_forces.py` | `forces_vs_re.json`, `fig_forces_vs_re.pdf` |
+| Fig. 2, Table II rows at Re = 800/1000 | `forces.py`, `make_fig_forces_v2.py` (case names of `01_generate_data/circular_cylinder/revision`, all under `$PDROM_CASES_DIR`) | `forces_vs_re.json`, `fig_forces_vs_re_v2.pdf` |
 | Fig. 8 (signed error and phase) | `make_fig_signed_phase_v2.py` | `fig_signed_phase_v2.{json,pdf}` |
-| Fig. 9 (395-cycle rollout) | `long_rollout_analysis_v2.py` | `long_rollout_v2.json`, `fig_long_rollout_v2.pdf` |
+| Fig. 9 (395-cycle rollout) | `long_rollout_analysis_v3.py` | `long_rollout_v2.json`, `fig_long_rollout_v2.pdf` |
 | Fig. 11 (field-space timing) | `field_timing_check_v2.py` | `field_timing_check_v2.json`, `fig_field_timing_v2.pdf` |
 | Table XII (periodic continuation, cubic spline) | `periodic_tiling_interp_v2.py`; `periodic_tiling_interp_v3.py 998:4 999:4` (modulated) | `periodic_tiling_interp_v2.json`, `periodic_tiling_interp_v3_*.json` |
-| Table XVII (sensitivity) | `sensitivity_table_v2.py` (uses `diag.py`) | `sensitivity_table_v2.json`, `sensitivity_table_rows_v2.tex` |
-| per-ensemble summaries (Sec. III M, N) | `aggregate_B.py <ensemble dirs>` | `aggregate_B_*.json` |
-| Fig. 14, Sec. III O (free-running clock, perturbations) | `clock_freerun_perturb_v2.py $DATA/seed_sweep_v3_Re500 --out clock_perturb_v2_Re500_40seeds.json`; `make_fig_learned_map_v5.py` | `fig_learned_map_v5.pdf`, `learned_map_panel_c_v5.json` |
+| Table XVII (sensitivity) | `sensitivity_table_v3.py` (uses `diag.py`) | `sensitivity_table_v3.json`, `sensitivity_table_rows_v3.tex` |
+| per-ensemble summaries (Sec. III M, N) | `aggregate_B_v2.py <ensemble dirs>` | `aggregate_B_*.json` |
+| Fig. 14, Sec. III O (free-running clock, perturbations) | `clock_freerun_perturb_v2.py $DATA/seed_sweep_v3_Re500 --out $ENS/clock_perturb_v2_Re500_40seeds.json`; `make_fig_learned_map_v6.py` (reads that file, or `--perturb <file>`) | `fig_learned_map_v6.pdf`, `learned_map_panel_c_v6.json` |
 | table-of-contents image | `make_highlight_image_v2.py` | `highlight_image.{png,pdf}` |
+
+The earlier versions (`make_fig_forces.py`, `long_rollout_analysis_v2.py`,
+`sensitivity_table_v2.py`, `aggregate_B.py`, `make_fig_learned_map_v5.py`) are kept for the
+record; they expected the case names used while the paper was prepared, skipped missing
+inputs silently, or took definitions by `exec()`. The new versions stop with an error when an
+input is missing, import the shared definitions from `learned_map_common.py`, and were
+checked to reproduce the stored results exactly (2026-11-24).
 
 `diag.py` holds the per-network diagnostics (phase and amplitude shares, tangential
 share, growth factors, R²_cal, ω_d, correction efficacy, clock bias); it is the same

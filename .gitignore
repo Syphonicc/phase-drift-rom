@@ -1,4 +1,4 @@
-# --- Data: snapshots, latents, rollouts, checkpoints (large; archived on Zenodo) ---
+# --- Data: snapshots, latents, rollouts, checkpoints (large; not in this repository: regenerate them, or ask the corresponding author) ---
 *.npy
 *.npz
 *.pt

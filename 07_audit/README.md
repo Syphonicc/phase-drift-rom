@@ -11,6 +11,7 @@ Provenance tracking and manuscript cross-checking.
 ```bash
 python3 audit_numbers.py --data-dir .
 python3 audit_numbers_v3.py --data-dir . --quiet     # revised manuscript
+python3 audit_numbers_v4.py --data-dir . --quiet     # v3 plus 28 claims added after the review of 2026-11-24 (77 in total)
 python3 check_manuscript.py --csv audit_numbers.csv --tex <bundle-dir>
 ```
 

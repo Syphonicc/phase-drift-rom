@@ -25,11 +25,7 @@ try:
     from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
     from scipy.spatial import Delaunay
 except ImportError:
-    import subprocess
-    subprocess.check_call([sys.executable, "-m", "pip", "install",
-                           "scipy", "--break-system-packages", "-q"])
-    from scipy.interpolate import LinearNDInterpolator, NearestNDInterpolator
-    from scipy.spatial import Delaunay
+    sys.exit("extract_snapshots_v2.py needs scipy: pip install -r requirements.txt")
 
 # ── Arguments ─────────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()

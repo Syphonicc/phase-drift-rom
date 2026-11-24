@@ -11,7 +11,7 @@ FoamFile
 //   D = 0.12, U = 1.0, nu = 0.0012
 //   Expected St ~ 0.137  ->  f_shed = St*U/D = 0.137/0.12 = 1.1417 Hz
 //   Shedding period  T = 1/f = 0.876 s
-//   writeInterval = T/20 = 0.0438  -> ~20 snapshots per shedding cycle
+//   writeInterval = 0.0438  -> about 18.5 snapshots per shedding cycle (St = 0.148)
 //
 //   Transient discarded: t < 60  (square cylinder at Re=100 takes longer than
 //   the circular case to reach a saturated limit cycle; be generous)

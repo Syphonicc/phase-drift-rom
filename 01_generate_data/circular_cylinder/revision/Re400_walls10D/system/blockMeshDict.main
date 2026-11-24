@@ -19,9 +19,9 @@ scale     1;
 R         0.06; // Cylinder radius
 x0        #eval{ 0.5*$R };
 x2        #eval{ 2.38732*$R };
-x3        #eval{ 20.0*$R };          // revision: lateral walls at +-10D (5% blockage)
-xOutlet   #eval{ 28.6667*$R };       // downstream block length unchanged (8.667R)
-xInlet    #eval{ -20.125*$R };       // upstream block length unchanged (0.125R)
+x3        #eval{ 20.0*$R };          // revision: lateral boundaries (symmetry planes) at +-10D (5% blockage)
+xOutlet   #eval{ 28.6667*$R };       // downstream block length unchanged (8.667R): outlet moves from 9.33D to 14.33D
+xInlet    #eval{ -20.125*$R };       // upstream block length unchanged (0.125R): inlet moves from 5.06D to 10.06D
 
 RsinPi8   #eval{ $R*sin(0.125*pi()) };
 RsinPi8n  #eval{ -$RsinPi8 };

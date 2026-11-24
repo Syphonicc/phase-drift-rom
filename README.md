@@ -9,8 +9,8 @@ Code and OpenFOAM cases for the paper:
 Autoregressive convolutional-autoencoder / LSTM reduced-order models of
 bluff-body wakes accumulate rollout error that is almost entirely a **coherent
 phase drift at the vortex-shedding frequency**, not broadband noise: 97–98% of
-the error variance is phase, while the limit-cycle amplitude is reproduced to
-within 0.14%. Because the drift is linear in time it can be removed by a
+the error variance is phase in the representative cases, while the limit-cycle
+amplitude is reproduced to within 0.2%. Because the drift is linear in time it can be removed by a
 one-parameter-per-latent-coordinate phase realignment, fitted on a short
 calibration window, with a built-in diagnostic (the R² of the phase fit) that
 reports in advance whether the correction applies.

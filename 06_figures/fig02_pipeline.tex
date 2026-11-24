@@ -1,0 +1,66 @@
+%=======================================================================
+%  fig02_pipeline.tex — the ROM pipeline and the correction
+%
+%  A TikZ figure: vector, editable, no PDF to manage.
+%
+%  main.tex preamble must contain:
+%      \usepackage{tikz}
+%      \usetikzlibrary{arrows.meta, positioning, fit}
+%=======================================================================
+\begin{tikzpicture}[
+    font=\small,
+    box/.style  = {draw, rounded corners=2pt, minimum height=8mm,
+                   minimum width=15mm, align=center, thick},
+    cae/.style  = {box, fill=blue!8,    draw=blue!55},
+    lstm/.style = {box, fill=orange!12, draw=orange!70},
+    corr/.style = {box, fill=teal!12,   draw=teal!65},
+    dat/.style  = {align=center, font=\footnotesize, inner sep=1.5pt},
+    ar/.style   = {-{Latex[length=1.8mm]}, thick},
+    fb/.style   = {-{Latex[length=1.8mm]}, thick, dashed, black!60},
+]
+
+%---------------- TRAINING / FORWARD PATH (top row) ----------------
+\node[dat]                       (q)    {$\mathbf{q}_n$};
+\node[cae,  right=6mm of q]      (enc)  {encoder};
+\node[dat,  right=6mm of enc]    (z)    {$\mathbf{z}_n$};
+\node[lstm, right=6mm of z]      (net)  {LSTM};
+\node[dat,  right=6mm of net]    (zh)   {$\hat{\mathbf{z}}_{n+1}$};
+
+\draw[ar] (q)   -- (enc);
+\draw[ar] (enc) -- (z);
+\draw[ar] (z)   -- (net);
+\draw[ar] (net) -- (zh);
+
+% dimension labels
+\node[font=\scriptsize, above=0.5mm of q]  {$3\times64\times128$};
+\node[font=\scriptsize, above=0.5mm of z]  {$n_z$};
+
+%---------------- THE AUTOREGRESSIVE FEEDBACK ----------------
+% The single most important arrow in the diagram: at inference the
+% prediction is fed back as the next input. This is where drift is born.
+\draw[fb, rounded corners=2pt]
+      (zh.north) -- ++(0,5mm) -| (net.north);
+\node[font=\scriptsize, align=center, above=0.8mm]
+      at ($(net.north)!0.5!(zh.north)+(0,5mm)$)
+      {at inference, the prediction becomes the next input};
+
+%---------------- THE CORRECTION (bottom row, outside the loop) ----------------
+\node[corr, below=14mm of zh]    (pc)   {phase\\correction};
+\node[dat,  left=6mm of pc]      (zt)   {$\tilde{\mathbf{z}}_n$};
+\node[cae,  left=6mm of zt]      (dec)  {decoder};
+\node[dat,  left=6mm of dec]     (qt)   {$\tilde{\mathbf{q}}_n$};
+
+\draw[ar] (zh) -- (pc);
+\draw[ar] (pc) -- (zt);
+\draw[ar] (zt) -- (dec);
+\draw[ar] (dec) -- (qt);
+
+\node[font=\scriptsize, teal!55!black, right=2mm of pc, align=left]
+      {$\tilde{z}^{(d)}
+        = \hat{A}^{(d)}\cos\!\big(\hat{\theta}^{(d)} - \omega_d\,t\big)
+          + \overline{\hat{z}^{(d)}}$};
+
+\node[font=\scriptsize, align=center, below=1mm of pc]
+      {\emph{post hoc} --- never fed back};
+
+\end{tikzpicture}

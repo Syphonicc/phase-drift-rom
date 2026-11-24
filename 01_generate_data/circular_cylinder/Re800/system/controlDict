@@ -19,12 +19,12 @@ application     pimpleFoam;
 startFrom       startTime;
 startTime       0;
 stopAt          endTime;
-endTime         90;          // 50 transient + 40 data = 1333 snapshots at 0.03
+endTime         90;          // t = 50-90 is used: 1334 snapshots at 0.03
 
 deltaT          0.01;        // smaller than writeInterval so we hit 0.03 cleanly
 
 writeControl    adjustableRunTime;
-writeInterval   0.03;        // T_shed/20 = 0.60/20 = 0.030  (20 per shedding cycle)
+writeInterval   0.03;        // about 18 snapshots per shedding cycle at Re = 300-800
 
 purgeWrite      0;
 writeFormat     ascii;

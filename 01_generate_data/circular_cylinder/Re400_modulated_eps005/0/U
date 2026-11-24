@@ -1,0 +1,69 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  v2512                                 |
+|   \\  /    A nd           | Website:  www.openfoam.com                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       volVectorField;
+    object      U;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+//
+// Non-stationary inlet for the Option-1 validation case.
+//   Ux(t) = 1.0 + 0.05*sin(2*pi*0.12170*t)    (A = 5%, T_mod ~ 8.22)
+// The +/-15% inlet modulation makes the shedding frequency drift slowly, so the
+// wake never repeats exactly cycle-to-cycle (periodic tiling fails) while staying
+// coherent at every instant (phase correction still works). Identical to the
+// stationary Re=400 case in every other respect.
+
+dimensions      [0 1 -1 0 0 0 0];
+
+internalField   uniform (1 0.01 0);
+
+boundaryField
+{
+    inlet
+    {
+        type            codedFixedValue;
+        value           uniform (1 0.01 0);
+        name            modulatedInlet;
+        code
+        #{
+            const scalar t  = this->db().time().value();
+            const scalar Um = 1.0;
+            const scalar A  = 0.05;
+            const scalar fm = 0.12170;
+            const scalar pi = Foam::constant::mathematical::pi;
+            const scalar Ux = Um*(1.0 + A*Foam::sin(2.0*pi*fm*t));
+            operator==( vector(Ux, 0.01, 0) );
+        #};
+    }
+
+    outlet
+    {
+        type            zeroGradient;
+    }
+
+    topAndBottom
+    {
+        type            symmetry;
+    }
+
+    "(left|right)"
+    {
+        type            empty;
+    }
+
+    cylinder
+    {
+        type            noSlip;
+    }
+}
+
+
+// ************************************************************************* //
